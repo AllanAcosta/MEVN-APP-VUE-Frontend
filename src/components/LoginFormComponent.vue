@@ -1,71 +1,91 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore.js'
-import { storeToRefs } from 'pinia'
-
-//Router Setting
-const router = useRouter()
+import { formInputValidations } from '@/composable/formInputValidations'
+import { Form, Field, ErrorMessage } from 'vee-validate'
+import { initTooltips } from 'flowbite'
 
 //Store Setting
 const useUser = useUserStore()
 const { login } = useUser
-const { isUserLoggedIn, isUserAuthenticated } = storeToRefs(useUser)
 
-//Login Models
-const userEmail = ref('')
-const userPassword = ref('')
+//Router Setting
+const router = useRouter()
 
-//Component Login Method
-const handleLoggin = async (userEmail, userPassword) => {
-  const authorization = await login(userEmail, userPassword)
-  console.log(authorization.isUserLoggedIn.value)
-  console.log(authorization.isUserAuthenticated.value)
+//Validation Composable
+const { validatePassword, validateEmail } = formInputValidations()
 
-  if (authorization.isUserLoggedIn.value) {
-    router.push('/')
-  } 
+/** handleLogin()
+ *  @param values -> (object)
+ **/
+
+const handleLoggin = (values) => {
+  if (validateEmail === true && validatePassword === true) {
+    const authorization = login(values.email, values.password)
+    if (authorization.isUserLoggedIn.value) {
+      router.push('/')
+    }
+  } else {
+    console.log('Please validate your data')
+  }
 }
+
+onMounted(() => {
+  initTooltips()
+})
 </script>
 <template>
-  <form class="w-full">
+  <Form
+    @submit="handleLoggin"
+    class="w-full">
     <h1>Login</h1>
-    {{ isUserLoggedIn }}
-    {{ isUserAuthenticated }}
     <div class="mb-6">
       <label
         for="user-email-success"
         class="block mb-2 text-sm font-medium text-green-700 dark:text-green-500"
-        >Your name</label
+        >Your email</label
       >
-      <input
+      <Field
+        name="email"
         type="text"
         id="user-email-success"
-        v-model="userEmail"
         class="text-sm rounded-lg w-full p-2.5"
-        placeholder="Email" />
-      <p class="mt-2 text-sm text-green-600 dark:text-green-500">
-        <span class="font-medium">Alright!</span> user-email available!
-      </p>
+        placeholder="Email"
+        :rules="validateEmail" />
+      <ErrorMessage name="email" />
     </div>
     <div class="mb-6">
       <label
         for="user-Password-success"
         class="block mb-2 text-sm font-medium text-green-700 dark:text-green-500"
-        >Your name</label
+        >Your password</label
       >
-      <input
+
+      <div
+        id="tooltip-animation"
+        role="tooltip"
+        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        Tooltip content
+        <div
+          class="tooltip-arrow"
+          data-popper-arrow></div>
+      </div>
+
+      <Field
+        data-tooltip-target="tooltip-animation"
+        name="password"
         type="password"
         id="user-password-success"
-        v-model="userPassword"
         class="text-sm rounded-lg w-full p-2.5"
-        placeholder="password" />
+        placeholder="password"
+        :rules="validatePassword" />
+      <ErrorMessage name="password" />
     </div>
 
     <input
       class="btn-primary-outlined w-full"
-      type="button"
-      value="send"
-      @click="handleLoggin(userEmail, userPassword)" />
-  </form>
+      type="submit"
+      value="send" />
+  </Form>
 </template>
