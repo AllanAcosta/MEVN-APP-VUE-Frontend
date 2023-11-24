@@ -1,10 +1,8 @@
 <script setup>
-import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore.js'
 import { formInputValidations } from '@/composable/formInputValidations'
 import { Form, Field, ErrorMessage } from 'vee-validate'
-import { initTooltips } from 'flowbite'
 
 //Store Setting
 const useUser = useUserStore()
@@ -31,9 +29,9 @@ const handleLoggin = (values) => {
   }
 }
 
-onMounted(() => {
-  initTooltips()
-})
+/** Tooltip Mesages
+ *  TODO: popover or tooltip animation to show error messages to the user
+ **/
 </script>
 <template>
   <Form
@@ -61,16 +59,6 @@ onMounted(() => {
         class="block mb-2 text-sm font-medium text-green-700 dark:text-green-500"
         >Your password</label
       >
-
-      <div
-        id="tooltip-animation"
-        role="tooltip"
-        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-        Tooltip content
-        <div
-          class="tooltip-arrow"
-          data-popper-arrow></div>
-      </div>
 
       <Field
         data-tooltip-target="tooltip-animation"
